@@ -98,7 +98,7 @@ class AlexNet(object):
         'biases') we need a special load function
         """
         # Load the weights into memory
-        weights_dict = np.load(self.WEIGHTS_PATH, encoding='bytes').item()
+        weights_dict = np.load(self.WEIGHTS_PATH, allow_pickle=True, encoding='bytes').item()
 
         # list of all assignment operators
         assign_list = []

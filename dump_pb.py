@@ -49,7 +49,7 @@ with tf.Session() as sess:
     sess.run(load_op)
 
     # Loop over all images
-    allimgs = np.zeros(shape=(3,227,227,3), dtype=np.float)
+    allimgs = np.zeros(shape=(5,227,227,3), dtype=np.float)
 
     for i, image in enumerate(imgs):
 
@@ -78,6 +78,7 @@ with tf.Session() as sess:
     # make sure batch prediction works
     probs = sess.run(softmax, feed_dict={x: allimgs})
     print(probs.shape)
+    exit()
 
     # dump .pb file
     print("graph def size:", sess.graph_def.ByteSize())
