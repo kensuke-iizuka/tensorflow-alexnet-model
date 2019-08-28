@@ -1,31 +1,13 @@
 import tensorflow as tf
 import numpy as np
 
-def conv(x, weights, biases, filter_height, filter_width, num_filters, stride_y, stride_x, name,
-         padding='SAME', groups=1):
-    """Create a convolution layer.
-
-    Adapted from: https://github.com/ethereon/caffe-tensorflow
-    """
-    # Get number of input channels
-    input_channels = int(x.get_shape()[-1])
-
+def conv(x, weights, biases, stride_y, stride_x, name, padding='SAME', groups=1):
     # Create lambda function for the convolution
-    convolve = lambda i, k: tf.nn.conv2d(i, k,
-                                         strides=[1, stride_y, stride_x, 1],
+    convolve = lambda i, k: tf.nn.conv2d(i, k, strides=[1, stride_y, stride_x, 1],
                                          padding=padding)
-
-    with tf.variable_scope(name) as scope:
-        # Create tf variables for the weights and biases of the conv layer
-        weights = tf.get_variable('weights', shape=[filter_height,
-                                                    filter_width,
-                                                    input_channels/groups,
-                                                    num_filters])
-        biases = tf.get_variable('biases', shape=[num_filters])
 
     if groups == 1:
         conv = convolve(x, weights)
-
     # In the cases of multiple groups, split inputs & weights and
     else:
         # Split input and weights and convolve them separately
@@ -39,17 +21,26 @@ def conv(x, weights, biases, filter_height, filter_width, num_filters, stride_y,
 
     # Add biases
     bias = tf.reshape(tf.nn.bias_add(conv, biases), tf.shape(conv))
-
     return bias
 
 
 if __name__ == "__main__":
-    input = tf.get_variable('input', shape=[8, 5, 5], initializer=tf.constant_initializer(1))
-    weight = tf.get_variable('weight', shape=[2, 2, 4, 10], initializer=tf.constant_initializer(1))
-    bias = tf.get_variable('bias', shape=[10], initializer=tf.constant_initializer(2))
-
-    conv_result = conv(input, weight, bias, 3, 3, 10, 1, 1, groups=2, name='conv')
-
-    sess = tf.compat.v1.Session()
-    result = sess.run(conv_result)
-    print(result[0][0][0])
+# Initialize input data 
+    conv_input = np.arange(5*5*4, dtype=np.float32)
+    conv_input = conv_input.reshape([1, 4, 5, 5])
+    tf_input = conv_input.transpose([0, 2, 3, 1]) # NCHW to NHWC
+    print(tf_input.shape)
+    weights = np.arange(3*3*2*6, dtype=np.float32)
+    weights = weights.reshape([6, 2, 3, 3])
+    tf_weights = weights.transpose([2, 3, 1, 0]) # H x W x ICH x OCN
+    # print(tf_weights)
+    bias = np.zeros([6,]))
+    stride = 1
+    padding = 0
+    output = conv(tf_input, tf_weights, bias, 1, 1, padding='VALID', name='group_test_conv', groups=2)
+    with tf.compat.v1.Session() as sess:
+        out = sess.run(output)
+        print(type(out))
+        print(out.shape)
+        result = out.transpose([3, 0, 1, 2]) # NHWC to NCHW
+        print(result)
