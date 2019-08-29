@@ -119,7 +119,7 @@ def check_first_conv(img_file_path, result_byte_data):
         print(out[0][0][0][0])
         # print(np.array_equal(out, restored_result))
 
-    # Write byte data for cheking FPGA result
+    # Write byte data for checking FPGA result
     out = out.transpose([0,3,1,2]).flatten()
     byte_data = out.tobytes()
     with open('./tf_conv1_result.bin', 'bw') as f:
